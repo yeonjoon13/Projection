@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import { UserButton, useUser } from '@clerk/nextjs';
-import { SignedOut } from '@clerk/clerk-react';
+import { useClerk } from '@clerk/clerk-react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import Image from 'next/image';
@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 
 export default function Nav() {
     const { user } = useUser();
+    const { isSignedIn } = useClerk(); 
     const router = useRouter();
     const userName = user?.fullName;
 
@@ -18,6 +19,12 @@ export default function Nav() {
             router.push('/dashboard'); 
         }
     }, [user, router]);
+
+    useEffect(() => {
+        if (!isSignedIn) {
+            router.push('/sign-in');
+        }
+    }, [isSignedIn, router]);
 
     return (
         <div className='py-4' style={{ position: 'relative', zIndex: 1000 }}>
@@ -43,7 +50,9 @@ export default function Nav() {
                             <UserButton />
                         </>
                     )}
-                    {!user && <SignedOut />}
+                    {!isSignedIn && (
+                        <div>You are signed out. Please log in.</div>
+                    )}
                 </div>
             </div>
         </div>
