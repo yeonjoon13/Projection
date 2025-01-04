@@ -43,7 +43,7 @@ export default function Nav() {
                             <UserButton />
                         </>
                     )}
-                    <SignedOut />
+                    {!user && <SignedOut />}
                 </div>
             </div>
         </div>
