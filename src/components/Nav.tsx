@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import { UserButton, useUser } from '@clerk/nextjs';
+//import { SignedOut } from '@clerk/clerk-react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import Image from 'next/image';
@@ -8,19 +9,13 @@ import logoImage from '/public/assets/logo.png';
 import { useRouter } from 'next/navigation';
 
 export default function Nav() {
-    const { user } = useUser(); 
+    const { user } = useUser();
     const router = useRouter();
     const userName = user?.fullName;
 
     useEffect(() => {
         if (user) {
             router.push('/dashboard'); 
-        }
-    }, [user, router]);
-
-    useEffect(() => {
-        if (!user) {
-            router.push('/sign-in');
         }
     }, [user, router]);
 
@@ -47,9 +42,6 @@ export default function Nav() {
                             </div>
                             <UserButton />
                         </>
-                    )}
-                    {!user && (
-                        <div>You are signed out. Please log in.</div>
                     )}
                 </div>
             </div>
