@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@clerk/clerk-react": "^5.2.5",
     "@edgestore/react": "^0.1.7",
     "@edgestore/server": "^0.1.7",
     "@headlessui/react": "^2.1.1",
