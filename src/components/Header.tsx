@@ -1,6 +1,7 @@
 import React from 'react';
 import { User, CalendarHeart } from 'lucide-react';
-import { useUser } from '@clerk/clerk-react';
+import { useSession } from '@supabase/supabase-js';
+import { supabase } from './supabaseClient'; // Adjust the import according to your file structure
 
 interface HeaderProps {
   collectedBy: string;
@@ -8,8 +9,9 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ collectedBy, collectedDate }) => {
-  const { user } = useUser();
-  const firstName = user?.fullName?.split(' ')[0]; 
+  const { data: session } = useSession(); 
+  const user = session?.user; 
+  const firstName = user?.user_metadata.full_name?.split(' ')[0]; 
 
   return (
     <header className="mt-10 py-4 px-12">
@@ -20,7 +22,7 @@ const Header: React.FC<HeaderProps> = ({ collectedBy, collectedDate }) => {
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <User className="w-4 h-4 text-gray-600" />
-            <span>For {user?.fullName}</span>
+            <span>For {user?.user_metadata.full_name}</span>
           </div>
           <div className="flex items-center space-x-2">
             <User className="w-4 h-4 text-gray-600" />
