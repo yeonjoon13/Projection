@@ -1,13 +1,34 @@
 'use client';
 
-import { useState } from 'react';
-import { Dialog, DialogPanel } from '@headlessui/react';
+import { useState, useEffect } from 'react';
+import { Dialog } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import { useUser } from '@clerk/nextjs';
+import { supabase } from '@/lib/supabaseClient';
+import { useRouter } from 'next/navigation';
 
-export default function Example() {
+export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user } = useUser();
+  const [user, setUser] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+    };
+
+    fetchSession();
+
+    const authSubscription = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => {
+      if (authSubscription && typeof authSubscription.unsubscribe === 'function') {
+        authSubscription.unsubscribe();
+      }
+    };
+  }, []);
 
   return (
     <div className="bg-white">
@@ -39,10 +60,10 @@ export default function Example() {
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <a
-                href={user ? "/dashboard" : "/sign-up"}
+                href="/sign-up"
                 className="rounded-md bg-black px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
               >
-                {user ? "Go to Dashboard" : "Get started"}
+                Get started
               </a>
             </div>
           </div>
