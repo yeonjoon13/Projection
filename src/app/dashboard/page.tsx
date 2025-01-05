@@ -41,7 +41,7 @@ export default function DashboardPage() {
   const [userFiles, setUserFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
   const supabase = createClientComponentClient();
 
@@ -57,7 +57,9 @@ export default function DashboardPage() {
           return;
         }
 
-        setUser(session.user);
+        if (session?.user) {
+          setUser(session.user); 
+        }
         setLoading(false);
       } catch (error) {
         console.error('Error checking auth status:', error);
