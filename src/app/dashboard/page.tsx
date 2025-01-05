@@ -156,7 +156,9 @@ export default function DashboardPage() {
                     Drag and Drop file here or Choose file. Supported formats: PDF, DOC. Maximum size: 25MB.
                   </DialogDescription>
                 </DialogHeader>
+                {user && user.id && user.email && (
                   <FileUpload userId={user.id} userName={user.email} />
+                )}
               </DialogContent>
             </Dialog>
           </div>
