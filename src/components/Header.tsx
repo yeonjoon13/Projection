@@ -1,7 +1,7 @@
-import React from 'react';
+'use client';
+import React, { useEffect, useState } from 'react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User, CalendarHeart } from 'lucide-react';
-import { useSession } from '@supabase/supabase-js';
-import { supabase } from './supabaseClient'; // Adjust the import according to your file structure
 
 interface HeaderProps {
   collectedBy: string;
@@ -9,9 +9,33 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ collectedBy, collectedDate }) => {
-  const { data: session } = useSession(); 
-  const user = session?.user; 
-  const firstName = user?.email; 
+  const [user, setUser] = useState<any | null>(null);
+  const supabase = createClientComponentClient();
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user || null);
+      } catch (error) {
+        console.error('Error fetching session:', error);
+      }
+    };
+
+    fetchSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => {
+      if (subscription) subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  const firstName = user?.email?.split('@')[0]; 
 
   return (
     <header className="mt-10 py-4 px-12">
