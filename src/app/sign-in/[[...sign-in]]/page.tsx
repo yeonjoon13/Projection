@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
@@ -8,24 +8,23 @@ import Link from 'next/link';
 export default function SignInPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const supabase = createClientComponentClient();
 
-    // Check if user is already logged in
     useEffect(() => {
         const checkUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
                 router.push('/dashboard');
-                router.refresh(); // Force a refresh to ensure the dashboard gets the latest session
+                router.refresh(); 
             }
         };
         checkUser();
     }, [router, supabase]);
 
-    const handleSignIn = async (e) => {
+    const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
             setError(null);
@@ -40,10 +39,14 @@ export default function SignInPage() {
 
             if (data.session) {
                 router.push('/dashboard');
-                router.refresh(); // Force a refresh to ensure the dashboard gets the latest session
+                router.refresh(); 
             }
-        } catch (error) {
-            setError(error.message);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError('An unexpected error occurred.');
+            }
         } finally {
             setLoading(false);
         }
