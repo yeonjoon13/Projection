@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function SignUp() {
     const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ export default function SignUp() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const logoImage = "/assets/logo.png"; 
 
     const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -43,14 +45,16 @@ export default function SignUp() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8 bg-white">
-            <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+        <div className="flex min-h-screen flex-col justify-start px-6 py-12 lg:px-8 bg-white mt-10"> {/* Reduced py-6 to py-4 and adjusted justify-start */}
+            <div className="sm:mx-auto sm:w-full sm:max-w-sm text-center">
+                <Image src={logoImage} width={100} height={100} alt="Logo" className="mx-auto mb-4" />
+
+                <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900"> {/* Reduced mt-4 to mt-2 */}
                     Create your account
                 </h2>
             </div>
 
-            <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-sm"> {/* Reduced mt-6 to mt-4 */}
                 <form className="space-y-6" onSubmit={handleSignUp}>
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
@@ -105,7 +109,7 @@ export default function SignUp() {
                     </div>
                 </form>
 
-                <p className="mt-10 text-center text-sm text-gray-500">
+                <p className="mt-8 text-center text-sm text-gray-500"> {/* Reduced mt-6 to mt-4 */}
                     Already have an account?{' '}
                     <Link href="/sign-in" className="font-semibold leading-6 text-black hover:text-gray-800">
                         Sign in here
