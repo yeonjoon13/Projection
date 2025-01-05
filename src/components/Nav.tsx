@@ -1,7 +1,6 @@
 'use client';
-import React, { useEffect } from 'react';
-import { UserButton, useUser } from '@clerk/nextjs';
-//import { SignedOut } from '@clerk/clerk-react';
+import React, { useEffect, useState } from 'react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import Image from 'next/image';
@@ -9,15 +8,46 @@ import logoImage from '/public/assets/logo.png';
 import { useRouter } from 'next/navigation';
 
 export default function Nav() {
-    const { user } = useUser();
+    const [user, setUser] = useState(null);
     const router = useRouter();
-    const userName = user?.fullName;
+    const supabase = createClientComponentClient();
 
     useEffect(() => {
-        if (user) {
-            router.push('/dashboard'); 
+        const fetchSession = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                setUser(session?.user || null);
+            } catch (error) {
+                console.error('Error fetching session:', error);
+            }
+        };
+
+        fetchSession();
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user || null);
+            if (session?.user) {
+                router.refresh(); // Force a refresh when auth state changes
+            }
+        });
+
+        return () => {
+            if (subscription) subscription.unsubscribe();
+        };
+    }, [supabase, router]);
+
+    const handleSignOut = async () => {
+        try {
+            await supabase.auth.signOut();
+            setUser(null);
+            router.push('/');
+            router.refresh(); // Force a refresh after sign out
+        } catch (error) {
+            console.error('Error signing out:', error);
         }
-    }, [user, router]);
+    };
 
     return (
         <div className='py-4' style={{ position: 'relative', zIndex: 1000 }}>
@@ -29,18 +59,32 @@ export default function Nav() {
 
                 <div className='flex gap-2 mr-10'>
                     {!user && (
-                        <Link href="/sign-in">
-                            <Button className='rounded-md bg-black px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black'>
-                                Login
-                            </Button>
-                        </Link>
+                        <>
+                            <Link href="/sign-up">
+                                <Button className='rounded-md bg-black px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black'>
+                                    Sign Up
+                                </Button>
+                            </Link>
+                            <Link href="/sign-in">
+                                <Button className='rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-gray-100 border border-black'>
+                                    Login
+                                </Button>
+                            </Link>
+                        </>
                     )}
                     {user && (
                         <>
-                            <div className='font-medium text-lg mt-1'>
-                                {userName}
-                            </div>
-                            <UserButton />
+                            <Link href="/dashboard">
+                                <Button className='rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-gray-100 border border-black'>
+                                    Dashboard
+                                </Button>
+                            </Link>
+                            <Button
+                                onClick={handleSignOut}
+                                className="rounded-md bg-black px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
+                            >
+                                Sign Out
+                            </Button>
                         </>
                     )}
                 </div>
