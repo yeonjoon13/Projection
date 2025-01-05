@@ -17,16 +17,16 @@ export default function LandingPage() {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user || null);
     };
-
+  
     fetchSession();
-
+  
     const authSubscription = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
     });
-
+  
     return () => {
-      if (authSubscription && typeof authSubscription.unsubscribe === 'function') {
-        authSubscription.unsubscribe();
+      if (authSubscription?.data?.subscription?.unsubscribe) {
+        authSubscription.data.subscription.unsubscribe();
       }
     };
   }, []);
