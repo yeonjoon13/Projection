@@ -210,7 +210,7 @@ export default function DashboardPage() {
                     <CardFooter className="flex justify-center p-4">
                     <Button
                       variant="link"
-                      onClick={() => handleViewFile(user.id.toString(), file.fileName.toString())}
+                      onClick={() => user && handleViewFile(user.id.toString(), file.fileName.toString())}
                       className="text-blue-500"
                     >
                       View File
