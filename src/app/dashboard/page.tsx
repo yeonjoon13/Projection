@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import MenuBar from '@/components/MenuBar';
+import { User } from '@supabase/supabase-js';
 
 interface UserFile {
   id: number;
