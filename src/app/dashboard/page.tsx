@@ -39,7 +39,7 @@ interface UserFile {
 }
 
 export default function DashboardPage() {
-  const [userFiles, setUserFiles] = useState([]);
+  const [userFiles, setUserFiles] = useState<UserFile[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
