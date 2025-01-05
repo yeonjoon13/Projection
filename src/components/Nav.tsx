@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import Image from 'next/image';
 import logoImage from '/public/assets/logo.png';
 import { useRouter } from 'next/navigation';
+import { User } from '@supabase/supabase-js';
 
 export default function Nav() {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
     const supabase = createClientComponentClient();
 
@@ -29,7 +30,7 @@ export default function Nav() {
         } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user || null);
             if (session?.user) {
-                router.refresh(); // Force a refresh when auth state changes
+                router.refresh(); 
             }
         });
 
