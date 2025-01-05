@@ -241,7 +241,7 @@ export default function DashboardPage() {
                         <TableCell className="text-left">  {/* Align the actions */}
                         <Button
                           variant="link"
-                          onClick={() => handleViewFile(user.id.toString(), file.id.toString())}
+                          onClick={() => user && handleViewFile(user.id.toString(), file.fileName.toString())}
                           className="text-blue-500"
                         >
                           View File
