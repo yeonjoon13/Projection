@@ -8,11 +8,11 @@ import Link from 'next/link';
 export default function SignUp() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    const handleSignUp = async (e) => {
+    const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
             setError(null);
@@ -31,8 +31,12 @@ export default function SignUp() {
             if (data) {
                 router.push('/dashboard');
             }
-        } catch (error) {
-            setError(error.message);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                setError(error.message); 
+            } else {
+                setError('An unknown error occurred');
+            }
         } finally {
             setLoading(false);
         }
