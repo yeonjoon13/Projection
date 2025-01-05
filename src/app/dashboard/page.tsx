@@ -1,6 +1,6 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import axios from 'axios';
 import FileUpload from '@/components/UploadFile';
 import {
@@ -20,14 +20,13 @@ import {
   TableBody,
   TableCell
 } from '@/components/ui/table';
-import fileImage from '/public/assets/file.png'; 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import Image from 'next/image'; 
-import MenuBar from '@/components/MenuBar'; 
-import { FileSpreadsheet, FileIcon, StarIcon, Search, Grid2X2, CreditCard } from "lucide-react"
-import Link from 'next/link'
-import { Button } from "@/components/ui/button"
+import { FileSpreadsheet, FileIcon, StarIcon, Search, Grid2X2, CreditCard } from "lucide-react";
+import Link from 'next/link';
+import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import MenuBar from '@/components/MenuBar';
 
 interface UserFile {
   id: number;
@@ -39,10 +38,35 @@ interface UserFile {
 }
 
 export default function DashboardPage() {
-  const { user } = useUser();
-  const [userFiles, setUserFiles] = useState<UserFile[]>([]);
+  const [userFiles, setUserFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const router = useRouter(); 
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const router = useRouter();
+  const supabase = createClientComponentClient();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) throw error;
+        
+        if (!session) {
+          router.push('/sign-in');
+          return;
+        }
+
+        setUser(session.user);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+        router.push('/sign-in');
+      }
+    };
+
+    checkUser();
+  }, [router, supabase]);
 
   useEffect(() => {
     const fetchUserFiles = async () => {
@@ -50,36 +74,43 @@ export default function DashboardPage() {
         try {
           const response = await axios.get(`/api/spring/api/v1/file-upload/${user.id}`);
           setUserFiles(response.data);
-          console.log(response.data)
         } catch (error) {
           console.error('Error fetching user files:', error);
         }
       }
     };
-  
-    fetchUserFiles();
-  }, [user]);  
+
+    if (user) {
+      fetchUserFiles();
+    }
+  }, [user]);
 
   const handleDelete = (fileId: number) => {
     setUserFiles(prevFiles => prevFiles.filter(file => file.id !== fileId));
   };
 
-  if (!user) {
-    return <div>Loading...</div>; 
-  } 
-
-  const userId = user.id;
-  const userName = user.fullName || user.username || user.primaryEmailAddress?.emailAddress;
-  const profileImageUrl = user.imageUrl; 
-
-  const filteredFiles = userFiles.filter(file => 
-    file.fileName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const handleViewFile = (userId: string, fileName: string) => {
     const encodedFileName = encodeURIComponent(fileName);
     router.push(`/report/${userId}/${encodedFileName}`);
   };
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      router.push('/sign-in');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  if (loading) {
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  }
+
+  const filteredFiles = userFiles.filter(file =>
+    file.fileName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
 
   return (
     <main className="mx-auto pt-16">
@@ -122,7 +153,7 @@ export default function DashboardPage() {
                     Drag and Drop file here or Choose file. Supported formats: PDF, DOC. Maximum size: 25MB.
                   </DialogDescription>
                 </DialogHeader>
-                  <FileUpload userId={userId} userName={userName} />
+                  <FileUpload userId={user.id} userName={user.email} />
               </DialogContent>
             </Dialog>
           </div>
