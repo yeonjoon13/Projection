@@ -11,7 +11,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ collectedBy, collectedDate }) => {
   const { data: session } = useSession(); 
   const user = session?.user; 
-  const firstName = user?.user_metadata.full_name?.split(' ')[0]; 
+  const firstName = user?.email; 
 
   return (
     <header className="mt-10 py-4 px-12">
@@ -22,7 +22,7 @@ const Header: React.FC<HeaderProps> = ({ collectedBy, collectedDate }) => {
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <User className="w-4 h-4 text-gray-600" />
-            <span>For {user?.user_metadata.full_name}</span>
+            <span>For {firstName}</span>
           </div>
           <div className="flex items-center space-x-2">
             <User className="w-4 h-4 text-gray-600" />
